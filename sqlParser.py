@@ -9,9 +9,8 @@ import re
 from pymongo import MongoClient
 from pymongo.errors import InvalidName
 
-uri = 'mongodb://localhost:27017'
-mongo_client = MongoClient(uri)
-db = mongo_client["DBPROJ"]
+
+
 
 def convert_sql_to_mongodb(sql_query):
     # Remove leading and trailing whitespaces
@@ -219,16 +218,4 @@ def convert_sql_to_mongodb(sql_query):
         for doc in result: print(doc)
         print(f"total = {len(result)}")
 
-while True:
-    #"Select * from customers where PostalCode >= '12209' and Country = 'Germany'"
-    #"Select City, CustomerName from customers where PostalCode >= '12209' and Country = 'Germany'"
-    #"select * from orders join customers on (orders.CustomerID=customers.CustomerID)"
-    #"select * from orders join customers on (orders.CustomerID=customers.CustomerID) where PostalCode >= '12209'"
-    #"select OrderDate from orders join customers on (orders.CustomerID=customers.CustomerID) where PostalCode >= '12209'"
-    
-    sql_query = input(f"SQL (case-sensitive for table names) statement ([Q]uit)?\n\n")
-    if sql_query.lower() == 'q' or sql_query == '': exit()
-
-    convert_sql_to_mongodb(sql_query)
-    print()
     

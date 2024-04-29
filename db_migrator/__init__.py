@@ -1,3 +1,3 @@
-from .mysql_handler import selectQuery, insertQuery
+from .mysql_handler import selectQuery, insertQuery, joinQuery
 from .mongo_handler import migrate
-__all__ = ['selectQuery', 'insertQuery', 'migrate']
+__all__ = ['selectQuery', 'insertQuery', 'joinQuery', 'migrate']

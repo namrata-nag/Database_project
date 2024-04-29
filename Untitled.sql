@@ -1,3 +1,0 @@
-INSERT INTO Company.Employee(Fname, Lname, sex, ssn, dno, salary, mgr_ssn, bdate) values(
-'John', 'Smith', 'M', 1, 5, 30000, 2, '1960-01-09'
-),('Franklin', 'Wong', 'M', 2, 5, 40000, 8, '1955-12-08'),('Aicia', 'Zelaya', 'F', 3, 4, 25000, 4, '1968-1-19'),('Jennifer', 'Wallace', 'F', 4, 4, 43000, 8,'1941-06-20'),('ramesh', 'yadav','M',5,5,38000, 2, '2000-01-02'),('Joyce', 'English', 'M', 6, 5, 25000, 2, '1972-07-31'), ('Ahmad','Jabbar', 'M', 7, 4, 25000, 4, '1969-03-29' ),('James','Borg','M',8,1,55000,null, '1937-11-10');
