@@ -19,6 +19,7 @@ data_type_mapping = {
 'enum':'enum',
 'date' : 'date',
 'datetime': 'datetime',
+'double': 'double'
 # Add more mappings as needed
 }
 
@@ -44,21 +45,25 @@ def migrate(mongo_client, mysql_client, sql_db_name):
     if(len(tables) == 0):
         printf(f"No table exists in the database '{sql_db_name}'. Skipping migration.")
         return
-    
+    print(f"Migrating data from SQL database '{sql_db_name}' to MongoDB '{mongo_db_name}'...")
     for (table_name,) in tables:
         prop  = {}
         required = []
+        primary_unique = {}
         mongo_data_type = ""
         mysql_client.execute(f"DESCRIBE {table_name}")
         mysql_columns = mysql_client.fetchall()
         
         for column in mysql_columns:
-        
-            # print("column->",column)
             column_name = column[0]
             data_type = column[1]
             isRequired = column[2] #not null
-
+            isPrimaryCol = column[3]
+            if isPrimaryCol=='PRI' or isPrimaryCol=='UNI':
+                if table_name not in primary_unique:
+                    primary_unique[table_name] = {}
+                primary_unique[table_name][column_name] = 1
+            
             #if a required column i.e null is not allowed then insert into required array
             if(required_mapping[isRequired]):
                 required.append(column_name)
@@ -76,6 +81,8 @@ def migrate(mongo_client, mysql_client, sql_db_name):
                 else:
                     val = value.split(",")
                     val = [item.strip().strip("'") for item in val]
+                    print("enum is required", isRequired)
+                    val.append(None)
                     prop[column_name] = {
                         "enum": val
                     }
@@ -84,9 +91,6 @@ def migrate(mongo_client, mysql_client, sql_db_name):
                 prop[column_name] = {
                     "bsonType": mongo_data_type,  
                 }
-            # isPrimaryCol = column[3]
-            # default_value = column[4]
-            # extra = column[5]
         mysql_client.execute(f"SELECT * FROM {table_name}")
         rows = mysql_client.fetchall()
         
@@ -97,33 +101,26 @@ def migrate(mongo_client, mysql_client, sql_db_name):
                 "properties": prop
             }  
         }
-        
         codec_options = CodecOptions()
         
         mongo_collection = mongo_db.create_collection(table_name, codec_options=codec_options, validator=validator)
-        
+        if table_name in primary_unique[table_name]:
+            mongo_collection = mongo_db[table_name].createIndex(primary_unique[table_name], {unique : 1})
+                       
         for row in rows:
             data = {}
             for i, column in enumerate(mysql_columns):
                 data[column[0]] = row[i]
-                if(isinstance(data[column[0]], datetime.date)):
-                    date_time = data[column[0]].isoformat()
-                    data[column[0]] = date_time
-            
+                if isinstance(data[column[0]], datetime.date):
+                # Convert ISO format string to datetime.date object
+                    date_time = datetime.datetime.combine(row[i], datetime.time.min)
+                    data[column[0]] = date_time          
             try:
                 # insert data into MongoDB
                 result = mongo_collection.insert_one(data)
-                print(f"inserted document with _id: {result.inserted_id}")
+                # print(f"inserted document with _id: {result.inserted_id}")
                 
             except Exception as e:
                 print(f"error: {e}")
-    # Migration logic from SQL to MongoDB
-    # Here you would write code to migrate data from SQL to MongoDB
-    print(f"Migrating data from SQL database '{sql_db_name}' to MongoDB '{mongo_db_name}'...")
-    # Example migration steps:
-    # 1. Connect to MySQL database
-    # 2. Retrieve data from MySQL tables
-    # 3. Insert data into MongoDB collections
-    # 4. Close connections
 
     print("Migration completed successfully.")

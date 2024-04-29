@@ -11,9 +11,4 @@ def initiate():
     )
     mongo_client = MongoClient('mongodb://localhost:27017')
     return mongo_client, mysql_client
-     
-
-
-
-# connect to MongoDB
 

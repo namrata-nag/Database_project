@@ -1,5 +1,5 @@
 from initClients import initiate
-from db_migrator import selectQuery, insertQuery, migrate
+from db_migrator import selectQuery, insertQuery, migrate, joinQuery
 import re
 
 import sys
@@ -10,11 +10,12 @@ def main():
     mysql_cursor = mysql_client.cursor()
     print("This app is to run the migration package in command line mode. DB Migrattion package exposes three function. For the ussage please follow readme.")
     print("1. selectQuery - It parses the select sql query to noSQL query and return the result after reading data from Mongo")
-    print("2. insertQuery - It parses the insert sql query to noSQL query and insert the value")
-    print("3. migrate - It will migrate the MySQL database to MongoDB.")
+    print("3. joinQuery - It parses the sql query with join condition to noSQL query and return the result")
+    print("4. insertQuery - It parses the insert sql query to noSQL query and insert the value")
+    print("5. migrate - It will migrate the MySQL database to MongoDB.")
     print("Type your command...")
     while True:
-        command = input("$")
+        command = input("$  ")
         if command == "exit":
             break
         print("You entered:", command)
@@ -23,18 +24,31 @@ def main():
         if match:
             command = match.group(1)
             input_param = match.group(2)
-            print("Command:", command)
-            print("Input Param:", input_param)
             if(command == 'migrate'):
                 migrate(mongo_client, mysql_cursor, input_param)
             elif(command == 'selectQuery'):
-                mongo_db = mongo_client['DBPROJ']
-                results = selectQuery(input_param, mongo_db)
+                db = mongo_client['DBPROJ']
+                results = selectQuery(input_param)
                 result_final = eval(results)
-                print(result_final)
+                print("Below is the search result:")
+                print("")
+                print("")
+                for document in result_final:
+                    print(document)
             elif(command == 'insertQuery'):
-                mongo_client = mongo_client['DBPROJ']
-                print("insertQuery")
+                db = mongo_client['DBPROJ']
+                results = insertQuery(input_param)
+                result_final = eval(results)
+                print("Inser Complete")
+            elif(command=='joinQuery'):
+                db = mongo_client['DBPROJ']
+                results = joinQuery(input_param)
+                result_final = eval(results)
+                print("Below is the join result:")
+                print("")
+                print("")
+                for document in result_final:
+                    print(document)
             else:
                 print("Please enter a valid commad. For reference go to Readme.",mongo_client)
         else:
@@ -42,18 +56,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# # for (table_name,) in tables:
-# #     migrate_table(table_name, table_name)
-# # Close connections
-# mysql_conn.close()
-# mongo_client.close()
-
-# app = Flask(__name__)
-
-# @app.route("/members")
-# def members():
-#     return {"members" : [1,2,3,4]}
-# if __name__ =="__main__":
-#         app.run(debug= True)
