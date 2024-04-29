@@ -13,6 +13,7 @@ $ source venv/bin/activate to activate the python env
 $ pip install mysql.connector, MongoClient, CodecOptions, re, datetime
 
 # Run Server
+$ python3 server.py
 The serever will ask user input. There are 4 function that has been exposed. Below is how you can use the exposed function : 
 - migrate "Db_Name"
 - selectQuery "sql_statement"
